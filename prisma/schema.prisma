@@ -1,4 +1,5 @@
 // schema.prisma — El Dhehaba (الذهابة) Jewelry POS
+// SQLite-compatible schema (no enums — stored as String)
 
 generator client {
   provider = "prisma-client-js"
@@ -9,98 +10,64 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─── Enums ────────────────────────────────────────────────────────────────────
-
-enum GoldOrigin {
-  LOCAL      // محلي
-  TURKISH    // تركي
-  ITALIAN    // إيطالي
-  IMPORTED   // مستورد آخر
-}
-
-enum ItemCategory {
-  BAGUE       // خاتم (Ring)
-  ALLIANCE    // محبس (Wedding band)
-  BRACELET    // براسلي / مسيسة
-  COLLIER     // سنسلة (Necklace/Chain)
-  BOUCLES     // مناقش (Earrings)
-  PARURE      // بارير (Full Set)
-  DEMI_PARURE // دومي بارير (Half Set)
-  LOUISA      // لويزة (Gold Coin)
-  OTHER
-}
-
-enum ItemCondition {
-  NEUF           // جديد (New)
-  BONNE_OCCASION // كاس مليح يتباع (Resellable Old Gold)
-  CASSE_FONTE    // كاس تاع ذوبان (Scrap for melting)
-}
-
-enum TransactionType {
-  SALE       // بيع — new item sold
-  BUY_CASSE  // شراء — buying old gold from client
-  TABDIL     // تبديل — trade-in (both legs in one transaction)
-}
-
-// ─── Models ───────────────────────────────────────────────────────────────────
-
 // 1. Master Rate Configuration (Soum El Youm / السوم اليومي)
+// GoldOrigin values: LOCAL | TURKISH | ITALIAN | IMPORTED
+// ItemCategory values: BAGUE | ALLIANCE | BRACELET | COLLIER | BOUCLES | PARURE | DEMI_PARURE | LOUISA | OTHER
+// ItemCondition values: NEUF | BONNE_OCCASION | CASSE_FONTE
+// TransactionType values: SALE | BUY_CASSE | TABDIL
+
 model GoldRateConfig {
   id                String   @id @default(cuid())
   karat             Int      @default(18)
 
   standardNewPrice  Float    // DZD per gram — سوم الجديد
   laCasseBuyPrice   Float    // DZD per gram — سوم شراء الكاس
-  laCasseSellPrice  Float    // DZD per gram — سوم بيع الكاس (أوكازيون)
+  laCasseSellPrice  Float    // DZD per gram — سوم بيع الكاس
 
   updatedBy         String   @default("owner")
   createdAt         DateTime @default(now())
   isActive          Boolean  @default(true)
-
-  @@index([isActive, karat])
 }
 
 // 2. Jewelry Inventory Item
 model JewelryItem {
-  id            String        @id @default(cuid())
-  sku           String        @unique
+  id            String   @id @default(cuid())
+  sku           String   @unique
   name          String
-  category      ItemCategory
-  origin        GoldOrigin    @default(LOCAL)
-  condition     ItemCondition @default(NEUF)
-  karat         Int           @default(18)
+  category      String   // BAGUE | ALLIANCE | BRACELET | COLLIER | BOUCLES | PARURE | DEMI_PARURE | LOUISA | OTHER
+  origin        String   @default("LOCAL")   // LOCAL | TURKISH | ITALIAN | IMPORTED
+  condition     String   @default("NEUF")    // NEUF | BONNE_OCCASION | CASSE_FONTE
+  karat         Int      @default(18)
 
-  grossWeight   Float         // الوزن الإجمالي (grams)
-  stoneWeight   Float         @default(0)  // وزن الحجر
-  netGoldWeight Float         // الوزن الصافي
+  grossWeight   Float
+  stoneWeight   Float    @default(0)
+  netGoldWeight Float
 
-  faconPerGram  Float         @default(0)  // حق اليد per gram
-  faconFixed    Float         @default(0)  // حق اليد fixed per piece
+  faconPerGram  Float    @default(0)
+  faconFixed    Float    @default(0)
 
-  attributes    String?       // JSON blob: ringSize, bangleSize, stones, length…
-  inStock       Boolean       @default(true)
-  createdAt     DateTime      @default(now())
+  attributes    String?  // JSON blob: ringSize, bangleSize, stones, length…
+  inStock       Boolean  @default(true)
+  createdAt     DateTime @default(now())
 
   transactionItems TransactionItem[]
 }
 
 // 3. Transaction Header
 model Transaction {
-  id                String          @id @default(cuid())
-  type              TransactionType
+  id                String   @id @default(cuid())
+  type              String   // SALE | BUY_CASSE | TABDIL
 
-  // Snapshot of rates at transaction time
   appliedNewRate    Float
   appliedCasseRate  Float
 
-  // Financials (DZD)
-  newItemsTotalDZD  Float           @default(0)
-  casseTradeInDZD   Float           @default(0)
-  discountDZD       Float           @default(0)  // مساعدة
+  newItemsTotalDZD  Float    @default(0)
+  casseTradeInDZD   Float    @default(0)
+  discountDZD       Float    @default(0)
   finalPayableDZD   Float
 
   notes             String?
-  createdAt         DateTime        @default(now())
+  createdAt         DateTime @default(now())
 
   items             TransactionItem[]
   casseItems        CasseVaultEntry[]
@@ -121,18 +88,18 @@ model TransactionItem {
 
 // 5. Casse Vault — accumulated old-gold tracker (صندوق الكاس)
 model CasseVaultEntry {
-  id              String       @id @default(cuid())
-  transaction     Transaction? @relation(fields: [transactionId], references: [id])
-  transactionId   String?
+  id               String       @id @default(cuid())
+  transaction      Transaction? @relation(fields: [transactionId], references: [id])
+  transactionId    String?
 
-  // Can also be manual entries (e.g., leftover pieces)
-  description     String?
-  grossWeight     Float
-  stoneDeduction  Float        @default(0)
-  netGoldWeight   Float
-  appliedCasseRate Float       // rate at time of acquisition
+  description      String?
+  grossWeight      Float
+  stoneDeduction   Float        @default(0)
+  netGoldWeight    Float
+  appliedCasseRate Float
 
-  createdAt       DateTime     @default(now())
-  sentToAffineur  Boolean      @default(false)  // melted / sent out?
-  sentAt          DateTime?
+  createdAt        DateTime     @default(now())
+  sentToAffineur   Boolean      @default(false)
+  sentAt           DateTime?
 }
+

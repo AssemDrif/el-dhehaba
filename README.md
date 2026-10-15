@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# الذهابة — El Dhehaba 🪙✨
 
-## Getting Started
+**نظام إدارة ونقطة بيع لمتاجر المجوهرات والذهب بالجزائر (سطيف — رو دو قسنطينة وعين الفوارة)**  
+*Modern Jewelry POS & Inventory System tailored specifically for Algerian Gold Market trade dynamics.*
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🌟 الميزات الرئيسية (Key Features)
+
+### 1. السوم اليومي الفوري (Dynamic Soum El Youm)
+- **لا توجد أسعار ثابتة مخزنة في قاعدة البيانات**: أسعار القطع تُحسب تلقائياً لحظة الاستعلام استناداً إلى السعر اليومي النشط (سوم الجديد وسوم الكاس).
+- **شريط علوي دائم (Sticky Rate Banner)**: يتيح لصاحب المحل قفل وتعديل السوم اليومي (`🔒 تعديل السوم`) بنقرة واحدة، وتحديث كل المعروضات فورياً مع تسجيل كامل للتغييرات السابقة (Audit Trail).
+
+### 2. العرض المزدوج: دينار وسنتيم (DZD + Algerian Centimes)
+- الواجهة تعرض المبالغ بالدينار الجزائري وبصيغة السوق المتداولة شفهياً (**ملايين وآلاف السنتيم**، مثل: `14 مليون و 550 ألف` و `145,500 د.ج`) لمنع أي التباس بين التاجر والزبون.
+
+### 3. شاشة التبديل الموحدة (Unified Tabdil Workflow)
+- يتيح إتمام عمليات التبديل (ذهب جديد للزبون مقابل كاس قديم + الفارق المالي أو المساعدة) في شاشة واحدة متكاملة دون الحاجة لفتح شاشتين منفصلتين للبيع والشراء.
+
+### 4. حاسبة الميزان السريعة (Quick Counter Scale Calculator)
+- لوحة أرقام سريعة تعمل باللمس عند الميزان للإجابة الفورية على استفسارات الزبائن ("شحال هذا الخاتم؟") مع خاصية خصم وزن الأحجار غير الذهبية (Zircon) فورياً.
+
+### 5. صندوق الكاس (Casse Vault Tracker)
+- تتبع الذهب القديم المتراكم المخصص للذوبان والتصفية (Affineur / التصفية)، مع مؤشر تراكم نحو عتبة الـ 200 غرام والقيمة التقديرية الحالية بالسنتيم.
+
+---
+
+## 🛠️ بنية التقنيات (Tech Stack)
+
+| الطبقة | التقنية المستخدمة | الفائدة |
+|---|---|---|
+| **Frontend** | Next.js (App Router) + Tailwind CSS | سرعة استجابة عالية ودعم كامل للاتجاه من اليمين لليسار (RTL) |
+| **State Management** | Zustand + LocalStorage Persistence | حفظ حالة السلة والسوم محلياً مع أداء سريع |
+| **Backend & ORM** | Next.js API Routes + Prisma ORM | تكامل وسهولة إدارة قاعدة البيانات والعمليات المالية |
+| **Database** | SQLite (مدمج محلياً) / جاهز للترقية إلى PostgreSQL | يعمل بدون إنترنت على جهاز المحل |
+| **Data Fetching** | TanStack React Query | تحديث فوري وإعادة جلب البيانات بسلاسة |
+
+---
+
+## 🚀 التثبيت والتشغيل (Quick Start)
+
+### المتطلبات
+- Node.js (الإصدار 18 أو أحدث)
+- npm أو pnpm أو yarn
+
+### خطوات التشغيل
+
+1. **استنساخ المستودع (Clone Repository):**
+   ```bash
+   git clone https://github.com/AssemDrif/el-dhehaba.git
+   cd el-dhehaba
+   ```
+
+2. **تثبيت الحزم (Install Dependencies):**
+   ```bash
+   npm install
+   ```
+
+3. **إعداد قاعدة البيانات وتوليد البيانات الأولية (Setup & Seed DB):**
+   ```bash
+   cp .env.example .env
+   npm run db:push
+   npm run db:seed
+   ```
+
+4. **تشغيل خادم التطوير (Run Development Server):**
+   ```bash
+   npm run dev
+   ```
+
+5. افتح المتصفح على: `http://localhost:3000`
+
+---
+
+## 📁 هيكلية المشروع (Project Structure)
+
+```
+src/
+├── app/
+│   ├── (dashboard)/
+│   │   ├── layout.tsx              # تخطيط لوحة التحكم مع شريط السوم والشريط الجانبي
+│   │   ├── page.tsx                # نقطة البيع (الكاسا) وحاسبة الميزان
+│   │   ├── inventory/page.tsx      # إدارة المخزون وبطاقات الأسعار الديناميكية
+│   │   ├── casse-vault/page.tsx    # صندوق الكاس وتتبع الذوبان (Affineur)
+│   │   └── settings/page.tsx       # سجل السوم التاريخي والإعدادات
+│   └── api/
+│       ├── rates/                  # واجهة قراءة وتحديث السوم اليومي
+│       ├── inventory/              # واجهة إدارة قطع الذهب
+│       ├── transactions/           # إتمام المعاملات المالية ذرّياً (Atomic)
+│       └── casse-vault/            # إدارة إدخالات صندوق الكاس
+├── components/
+│   ├── rates/StickyRateBanner.tsx  # شريط السوم المثبت بأعلى الشاشة
+│   ├── pos/QuickScaleCalc.tsx      # حاسبة الميزان السريعة مع لوحة أرقام
+│   ├── pos/TabdilSplitScreen.tsx   # شاشة التبديل الموحدة
+│   └── inventory/JewelFormModal.tsx# نموذج إضافة قطعة جديدة بحقول ديناميكية
+└── lib/
+    ├── pricingEngine.ts            # محرك الحسابات المالية وصيغة السنتيم
+    ├── store.ts                    # حالة التطبيق الشاملة (Zustand)
+    └── db.ts                       # نسخة Prisma Client الآمنة
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📄 الترخيص (License)
+MIT License.
