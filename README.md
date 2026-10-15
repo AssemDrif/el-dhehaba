@@ -1,5 +1,4 @@
-# الذهابة — El Dhehaba 🪙✨
-
+# الذهابة — El Dhehaba 
 **نظام إدارة ونقطة بيع لمتاجر المجوهرات والذهب بالجزائر (سطيف — رو دو قسنطينة وعين الفوارة)**  
 *Modern Jewelry POS & Inventory System tailored specifically for Algerian Gold Market trade dynamics.*
 
