@@ -43,33 +43,6 @@
 - Node.js (الإصدار 18 أو أحدث)
 - npm أو pnpm أو yarn
 
-### خطوات التشغيل
-
-1. **استنساخ المستودع (Clone Repository):**
-   ```bash
-   git clone https://github.com/AssemDrif/el-dhehaba.git
-   cd el-dhehaba
-   ```
-
-2. **تثبيت الحزم (Install Dependencies):**
-   ```bash
-   npm install
-   ```
-
-3. **إعداد قاعدة البيانات وتوليد البيانات الأولية (Setup & Seed DB):**
-   ```bash
-   cp .env.example .env
-   npm run db:push
-   npm run db:seed
-   ```
-
-4. **تشغيل خادم التطوير (Run Development Server):**
-   ```bash
-   npm run dev
-   ```
-
-5. افتح المتصفح على: `http://localhost:3000`
-
 ---
 
 ## 📁 هيكلية المشروع (Project Structure)
